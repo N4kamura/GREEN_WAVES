@@ -7,14 +7,26 @@
     <x>0</x>
     <y>0</y>
     <width>468</width>
-    <height>141</height>
+    <height>260</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>468</width>
+    <height>194</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>468</width>
+    <height>300</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Time Space Diagram Maker</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLineEdit" name="gpsLine">
+   <widget class="QLineEdit" name="inLine">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -24,7 +36,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="gpsButton">
+   <widget class="QPushButton" name="inButton">
     <property name="geometry">
      <rect>
       <x>380</x>
@@ -34,14 +46,14 @@
      </rect>
     </property>
     <property name="text">
-     <string>GPS Data</string>
+     <string>GPS In</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="programLine">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>70</y>
       <width>361</width>
       <height>20</height>
      </rect>
@@ -51,7 +63,7 @@
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>40</y>
+      <y>70</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -64,13 +76,226 @@
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>70</y>
+      <y>100</y>
       <width>75</width>
-      <height>41</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">
      <string>Start</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>100</y>
+      <width>191</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Inbound Start Timestamp: </string>
+    </property>
+   </widget>
+   <widget class="QTimeEdit" name="in_timeEdit">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>100</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="buttonSymbols">
+     <enum>QAbstractSpinBox::NoButtons</enum>
+    </property>
+    <property name="displayFormat">
+     <string>HH:mm:ss</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>130</y>
+      <width>191</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Outbound Start Timestamp: </string>
+    </property>
+   </widget>
+   <widget class="QTimeEdit" name="out_timeEdit">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>130</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="buttonSymbols">
+     <enum>QAbstractSpinBox::NoButtons</enum>
+    </property>
+    <property name="displayFormat">
+     <string>HH:mm:ss</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>220</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Credits: Nakamura</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="in_checkBox">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>100</y>
+      <width>61</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>In</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="out_checkBox">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>130</y>
+      <width>61</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Out</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="outButton">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>40</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>GPS Out</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="outLine">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>361</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="saveButton">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>160</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save Config.</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="readButton">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>190</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Read Config.</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="plainTextEdit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>160</y>
+      <width>361</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="plainText">
+     <string>Save Config: Saves the current configuration. Select a folder to store the configuration file.
+Read Config: Loads a configuration from a .json file.</string>
     </property>
    </widget>
   </widget>

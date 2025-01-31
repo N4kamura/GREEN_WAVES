@@ -2,6 +2,8 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import datetime
+from openpyxl import load_workbook
 
 def apply_offset(program: list[list], offset: float) -> list[list]:
     cycle_time = sum([time_duration for _, time_duration in program])
@@ -134,90 +136,196 @@ def draw_band(ax, intersection_positions, programs, velocity, time_max, light_cy
                 # Avanzar al siguiente ciclo
                 start_time += cycle
 
-def read_gps_data(file_path: str, inbound: bool, upper_limit: float) -> pd.DataFrame:
-    with open(file_path, "r") as file:
-        lines = file.readlines()
+def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, upper_hour: str, lower_hour: str, displacement_in = 0, displacement_out = 0) -> list[pd.DataFrame, pd.DataFrame]:
+    ###########
+    # Inbound #
+    ###########
 
-    # Lista para almacenar los datos procesados
-    data = []
+    if inbound:
+        with open(in_path, "r") as file:
+            lines = file.readlines()
 
-    # Identificar la sección de datos (evitar encabezados)
-    start_parsing = False
+        # Lista para almacenar los datos procesados
+        data = []
 
-    for line in lines:
-        line = line.strip()  # Eliminar espacios en blanco y saltos de línea
-        
-        # Detectar el inicio de los datos cuando aparece "Trackpoint"
-        if line.startswith("Header"):
-            start_parsing = True
-            continue  # Saltamos la línea de encabezado
-        
-        if start_parsing and line.startswith("Trackpoint"):
-            # Separar por tabulaciones
-            values = line.split("\t")
+        # Identificar la sección de datos (evitar encabezados)
+        start_parsing = False
+
+        for line in lines:
+            line = line.strip()  # Eliminar espacios en blanco y saltos de línea
             
-            # Manejo de datos vacíos (considerando que Temperature está vacío en algunos casos)
-            while len(values) < 10:  # Ajustar longitud de lista si hay columnas vacías
-                values.append("")
+            # Detectar el inicio de los datos cuando aparece "Trackpoint"
+            if line.startswith("Header"):
+                start_parsing = True
+                continue  # Saltamos la línea de encabezado
+            
+            if start_parsing and line.startswith("Trackpoint"):
+                # Separar por tabulaciones
+                values = line.split("\t")
+                
+                # Manejo de datos vacíos (considerando que Temperature está vacío en algunos casos)
+                while len(values) < 10:  # Ajustar longitud de lista si hay columnas vacías
+                    values.append("")
 
-            # Extraer los valores con la estructura esperada
-            # position = values[1]
-            time = values[2]
-            # altitude = values[3]
-            # depth = float(values[4][:-2]) if values[4] else None
-            # temperature = values[5] if values[5] else None
-            leg_length = float(values[6][:-2]) if values[6] else 0.0
-            # leg_time = values[7] if values[7] else None
-            leg_speed = float(values[8][:-4]) if values[8] else 0.0
-            # leg_course = values[9] if len(values) > 9 else None
+                # Extraer los valores con la estructura esperada
+                hour_string = datetime.strptime(values[2].strip(), "%d/%m/%Y %I:%M:%S %p")
+                time = hour_string.strftime("%H:%M:%S")
+                leg_length = float(values[6][:-2]) if values[6] else 0.0
+                leg_speed = float(values[8][:-4]) if values[8] else 0.0
 
-            # Agregar a la lista de datos
-            data.append([time, leg_length, leg_speed])
+                # Agregar a la lista de datos
+                data.append([time, leg_length, leg_speed])
 
-    # Crear el DataFrame
-    columns = ["Time", "Leg Length", "Leg Speed"]
-    df = pd.DataFrame(data, columns=columns)
+        # Crear el DataFrame
+        columns = ["Time", "Leg Length", "Leg Speed"]
+        df_in = pd.DataFrame(data, columns=columns)
 
-    # Convertir valores numéricos
-    df["Leg Length"] = pd.to_numeric(df["Leg Length"], errors="coerce")
-    df["Leg Speed"] = pd.to_numeric(df["Leg Speed"], errors="coerce")
+        # Acumulando distancias
+        df_in["Cumulative Length"] = df_in["Leg Length"].cumsum()
 
-    # Agregar la columna de acumulado de 'Leg Length'
-    df["Cumulative Length"] = df["Leg Length"].cumsum()
+        # Calculando upper_limit
+        df_in["Time"] = pd.to_datetime(df_in["Time"], format="%H:%M:%S")
 
-    # Convertir la columna 'Time' a datetime
-    df["Time"] = df["Time"].str.strip()
-    df["Time"] = pd.to_datetime(df["Time"], format="%d/%m/%Y %I:%M:%S %p")
+        # Conviertiendo el upper_hour a datetime
+        lower_time = pd.to_datetime(lower_hour, format="%H:%M:%S")
 
-    df["Time_Seconds"] = (df["Time"] - df["Time"].iloc[0]).dt.total_seconds()
+        # Excluyendo los datos posteriores al upper_time
+        df_in = df_in[df_in["Time"] >= lower_time]
 
-    # Aplicando demora para afinar los inicios de los tiempos
-    df["Time_Seconds"] += 26
+        # Obteniendo el lower_limit
+        lower_limit = df_in["Cumulative Length"].min()
 
-    return df
+        # Convertir valores numéricos
+        df_in["Leg Length"] = pd.to_numeric(df_in["Leg Length"], errors="coerce")
+        df_in["Leg Speed"] = pd.to_numeric(df_in["Leg Speed"], errors="coerce")
 
-def start_algorithm(df: pd.DataFrame) -> None:
+        # Normalizando a 0:
+        df_in["Distance"] = df_in["Cumulative Length"] - lower_limit
+
+        # Convertir la columna 'Time' a datetime
+        df_in["Time_Seconds"] = (df_in["Time"] - df_in["Time"].iloc[0]).dt.total_seconds()
+
+        # Aplicar demora para afinar los inicios de los tiempos
+        df_in["Time_Seconds"] += displacement_in #NOTE: Por si paso el medio de la intersección unos segundos después
+
+    ############
+    # Outbound #
+    ############
+
+    if outbound:
+        with open(out_path, "r") as file:
+            lines = file.readlines()
+
+        # Lista para almacenar los datos procesados
+        data = []
+
+        # Identificar la sección de datos (evitar encabezados)
+        start_parsing = False
+
+        for line in lines:
+            line = line.strip()  # Eliminar espacios en blanco y saltos de línea
+            
+            # Detectar el inicio de los datos cuando aparece "Trackpoint"
+            if line.startswith("Header"):
+                start_parsing = True
+                continue  # Saltamos la línea de encabezado
+            
+            if start_parsing and line.startswith("Trackpoint"):
+                # Separar por tabulaciones
+                values = line.split("\t")
+                
+                # Manejo de datos vacíos (considerando que Temperature está vacío en algunos casos)
+                while len(values) < 10:  # Ajustar longitud de lista si hay columnas vacías
+                    values.append("")
+
+                # Extraer los valores con la estructura esperada
+                hour_string = datetime.strptime(values[2].strip(), "%d/%m/%Y %I:%M:%S %p")
+                time = hour_string.strftime("%H:%M:%S")
+                leg_length = float(values[6][:-2]) if values[6] else 0.0
+                leg_speed = float(values[8][:-4]) if values[8] else 0.0
+
+                # Agregar a la lista de datos
+                data.append([time, leg_length, leg_speed])
+
+        # Crear el DataFrame
+        columns = ["Time", "Leg Length", "Leg Speed"]
+        df_out = pd.DataFrame(data, columns=columns)
+
+        # Acumulando distancias
+        df_out["Cumulative Length"] = df_out["Leg Length"].cumsum()
+
+        # Calculando upper_limit
+        df_out["Time"] = pd.to_datetime(df_out["Time"], format="%H:%M:%S")
+
+        # Conviertiendo el upper_hour a datetime
+        upper_time = pd.to_datetime(upper_hour, format="%H:%M:%S")
+
+        # Excluyendo los datos posteriores al upper_time
+        df_out = df_out[df_out["Time"] <= upper_time]
+
+        # Obteniendo el upper_limit
+        upper_limit = df_out["Cumulative Length"].max()
+
+        # Convertir valores numéricos
+        df_out["Leg Length"] = pd.to_numeric(df_out["Leg Length"], errors="coerce")
+        df_out["Leg Speed"] = pd.to_numeric(df_out["Leg Speed"], errors="coerce")
+
+        # Si no es inbound, calcular "Decreasing Length"
+        df_out["Distance"] = upper_limit - df_out["Cumulative Length"]
+
+        # Convertir la columna 'Time' a datetime
+        df_out["Time_Seconds"] = (df_out["Time"] - df_out["Time"].iloc[0]).dt.total_seconds()
+
+        # Aplicar demora para afinar los inicios de los tiempos
+        df_out["Time_Seconds"] += displacement_out #NOTE: Por si paso el medio de la intersección unos segundos después
+
+    if not inbound:
+        df_in = None
+
+    if not outbound:
+        df_out = None
+
+    return df_in, df_out
+
+def read_program(excel_path: str) -> dict:
+    wb = load_workbook(excel_path, read_only=True, data_only=True)
+    ws = wb.active #NOTE: Podría generar un error
+
+    n = 0 #NOTE: Uso para saltos de filas
+    programs = {}
+    while True:
+        name = ws.cell(row=3+2*n, column=1).value
+        if name == None:
+            break
+
+        # Guardar más información
+        id = n+1
+        red = ws.cell(row=3+2*n, column=9).value
+        program = {
+            "inbound": [
+            ["green", ws.cell(row=3+2*n, column=5).value],
+            ["blue", ws.cell(row=3+2*n, column=6).value],
+            ["yellow", 3],
+            ["red", red],
+            ],
+            "outbound": [
+                ["green", ws.cell(row=3+2*n, column=7).value],
+                ["blue", ws.cell(row=3+2*n, column=8).value],
+                ["yellow", 3],
+                ["red", red],
+            ],
+        }
+
+        programs[id] = program
+        n += 1
+    
+    return programs
+
+def start_algorithm(df_in: pd.DataFrame | None, df_out: pd.DataFrame | None, programs: dict) -> None:
     # Configuración de las intersecciones
-    intersection_positions = [0, 134, 251+134, 530+251+134]  # Distancia en metros entre las intersecciones
-    velocity = 20 # km/h
-    programs = {
-        4: {
-            "inbound":  [["green", 77], ["blue", 0], ["yellow", 3], ["red", 70]],
-            "outbound":  [["green", 77], ["blue", 0], ["yellow", 3], ["red", 70]]
-        },
-        3: {
-            "inbound":  [["green", 42], ["blue", 0], ["yellow", 3], ["red", 45]],
-            "outbound": [["green", 42], ["blue", 0], ["yellow", 3], ["red", 45]],
-            },
-        2: {
-            "inbound":  [["green", 50], ["blue", 0], ["yellow", 3], ["red", 37]],
-            "outbound": [["green", 50], ["blue", 0], ["yellow", 3], ["red", 37]],
-            },
-        1: {
-            "inbound":  [["green", 57], ["blue", 0], ["yellow", 3], ["red", 30]],
-            "outbound": [["green", 57], ["blue", 0], ["yellow", 3], ["red", 30]],
-            },
-    }
+    distances_intersections = [0, 134, 251+134, 530+251+134]  # Distancia en metros entre las intersecciones
+    intersection_positions = distances_intersections[::-1]
+    # velocity = 20 # km/h
 
     # offsets = [0, 0, 0 , 0] # Dulanto 28-01-25
     # offsets = [0, 2, 28, 38] # Dulanto 29-01-25
@@ -225,7 +333,6 @@ def start_algorithm(df: pd.DataFrame) -> None:
     # Aplicando desfases
     for intersection, bounds in programs.items():
         pass
-
 
     light_cycles = {number: sum([value for _, value in dict_bounds["inbound"]]) for number, dict_bounds in programs.items()}
 
@@ -243,8 +350,13 @@ def start_algorithm(df: pd.DataFrame) -> None:
     # draw_band(ax, intersection_positions, programs, 5.56, time_max, light_cycles, direction="outbound", color="blue")
 
     # Graficar datos de GPS
-    if "Time_Seconds" in df.columns and "Cumulative Length" in df.columns:
-        ax.plot(df["Time_Seconds"], df["Cumulative Length"], marker='o', linestyle='-', color='black', label="Vehicle Tracking")
+    if df_in is not None:
+        ax.plot(df_in["Time_Seconds"], df_in["Distance"], marker='o', linestyle='-', color='purple', label="Vehicle In Tracking")
+
+    if df_out is not None:
+        ax.plot(df_out["Time_Seconds"], df_out["Distance"], marker='o', linestyle='-', color='cyan', label="Vehicle Out Tracking")
+
+    ax.legend()
 
     # Dibujar semáforos
     for (i, position), program, cycle in zip(enumerate(intersection_positions), programs.values(), light_cycles.values()):
