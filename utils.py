@@ -287,12 +287,13 @@ def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, up
 
     return df_in, df_out
 
-def read_program(excel_path: str) -> dict:
+def read_program(excel_path: str) -> tuple[dict, list]:
     wb = load_workbook(excel_path, read_only=True, data_only=True)
     ws = wb.active #NOTE: Podría generar un error
 
     n = 0 #NOTE: Uso para saltos de filas
     programs = {}
+    offsets = []
     while True:
         name = ws.cell(row=3+2*n, column=1).value
         if name == None:
@@ -300,39 +301,41 @@ def read_program(excel_path: str) -> dict:
 
         # Guardar más información
         id = n+1
-        red = ws.cell(row=3+2*n, column=9).value
+        red = ws.cell(row=3+2*n, column=10).value
         program = {
             "inbound": [
-            ["green", ws.cell(row=3+2*n, column=5).value],
-            ["blue", ws.cell(row=3+2*n, column=6).value],
-            ["yellow", 3],
-            ["red", red],
+                ["green", ws.cell(row=3+2*n, column=6).value],
+                ["blue", ws.cell(row=3+2*n, column=7).value],
+                ["yellow", 3],
+                ["red", red],
             ],
             "outbound": [
-                ["green", ws.cell(row=3+2*n, column=7).value],
-                ["blue", ws.cell(row=3+2*n, column=8).value],
+                ["green", ws.cell(row=3+2*n, column=8).value],
+                ["blue", ws.cell(row=3+2*n, column=9).value],
                 ["yellow", 3],
                 ["red", red],
             ],
         }
-
+        offset = ws.cell(row=3+2*n, column=5).value
+        offsets.append(offset)
         programs[id] = program
         n += 1
     
-    return programs
+    return programs, offsets
 
-def start_algorithm(df_in: pd.DataFrame | None, df_out: pd.DataFrame | None, programs: dict) -> None:
+def start_algorithm(df_in: pd.DataFrame | None, df_out: pd.DataFrame | None, original_programs: dict, offsets: list) -> None:
     # Configuración de las intersecciones
     distances_intersections = [0, 134, 251+134, 530+251+134]  # Distancia en metros entre las intersecciones
     intersection_positions = distances_intersections[::-1]
-    # velocity = 20 # km/h
-
-    # offsets = [0, 0, 0 , 0] # Dulanto 28-01-25
+    # velocity = 20 # km/h TODO: DO IT
     # offsets = [0, 2, 28, 38] # Dulanto 29-01-25
 
+    programs = deepcopy(original_programs)
     # Aplicando desfases
-    for intersection, bounds in programs.items():
-        pass
+    for i, (intersection, dict_bounds) in enumerate(original_programs.items()):
+        for bound, program_list in dict_bounds.items():
+            new_program = apply_offset(program_list, offsets[i])
+            programs[intersection][bound] = new_program
 
     light_cycles = {number: sum([value for _, value in dict_bounds["inbound"]]) for number, dict_bounds in programs.items()}
 

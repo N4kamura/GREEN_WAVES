@@ -108,7 +108,7 @@ class MainWindow(QMainWindow):
             else:
                 self.out_path = None
             
-            programs = read_program(self.excel_path)
+        programs, offsets = read_program(self.excel_path)
 
         # Obtaining upper_limit in case of outbound
         df_in, df_out = read_gps_data(
@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
             lower_hour=self.inbound_start_time,
             )
         
-        start_algorithm(df_in, df_out, programs)
+        start_algorithm(df_in, df_out, programs, offsets)
 
         self.status.showMessage("Space-Time Diagram created")
 
