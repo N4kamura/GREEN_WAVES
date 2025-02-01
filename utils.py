@@ -23,6 +23,14 @@ def apply_offset(program: list[list], offset: float) -> list[list]:
 
     return new_program
 
+def _get_color_values(lead_lag, green_val, blue_val):
+    if lead_lag == "LEAD":
+        return[["blue", blue_val], ["green", green_val]]
+    elif lead_lag == "LAG":
+        return[["green", green_val], ["blue", blue_val]]
+    else: # Caso None
+        return [["green", green_val], ["blue", 0]]
+
 def draw_light(ax, position, cycle, time_max, program, color_green="green", color_left="blue", color_amber="yellow", color_red="red"):
     colors = {
         "green": color_green,
@@ -287,13 +295,14 @@ def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, up
 
     return df_in, df_out
 
-def read_program(excel_path: str) -> tuple[dict, list]:
+def read_program(excel_path: str) -> tuple[dict, list, list]:
     wb = load_workbook(excel_path, read_only=True, data_only=True)
     ws = wb.active #NOTE: Podría generar un error
 
     n = 0 #NOTE: Uso para saltos de filas
     programs = {}
     offsets = []
+    distances = [0]
     while True:
         name = ws.cell(row=3+2*n, column=1).value
         if name == None:
@@ -301,32 +310,40 @@ def read_program(excel_path: str) -> tuple[dict, list]:
 
         # Guardar más información
         id = n+1
-        red = ws.cell(row=3+2*n, column=10).value
+        red =               ws.cell(row=3+2*n, column=12).value
+
+        inbound_green =     ws.cell(row=3+2*n, column=6).value
+        inbound_blue =      ws.cell(row=3+2*n, column=7).value
+        inbound_leadlag =   ws.cell(row=3+2*n, column=8).value
+
+        outbound_green =    ws.cell(row=3+2*n, column=9).value
+        outbound_blue =     ws.cell(row=3+2*n, column=10).value
+        outbound_leadlag =  ws.cell(row=3+2*n, column=11).value
+
+        # Construcción del programa dinámico
         program = {
-            "inbound": [
-                ["green", ws.cell(row=3+2*n, column=6).value],
-                ["blue", ws.cell(row=3+2*n, column=7).value],
-                ["yellow", 3],
-                ["red", red],
-            ],
-            "outbound": [
-                ["green", ws.cell(row=3+2*n, column=8).value],
-                ["blue", ws.cell(row=3+2*n, column=9).value],
-                ["yellow", 3],
-                ["red", red],
-            ],
+            "inbound": _get_color_values(inbound_leadlag, inbound_green, inbound_blue) + [["yellow", 3], ["red", red]],
+            "outbound": _get_color_values(outbound_leadlag, outbound_green, outbound_blue) + [["yellow", 3], ["red", red]],
         }
+        
+        # Desfases
         offset = ws.cell(row=3+2*n, column=5).value
         offsets.append(offset)
+
+        # Distancias
+        distance = ws.cell(row=4+2*n, column=2).value
+        if distance != None:
+            distances.append(distance)
+
+        # Programación
         programs[id] = program
         n += 1
     
-    return programs, offsets
+    return programs, offsets, distances
 
-def start_algorithm(df_in: pd.DataFrame | None, df_out: pd.DataFrame | None, original_programs: dict, offsets: list) -> None:
+def start_algorithm(df_in: pd.DataFrame | None, df_out: pd.DataFrame | None, original_programs: dict, offsets: list, distances: list) -> None:
     # Configuración de las intersecciones
-    distances_intersections = [0, 134, 251+134, 530+251+134]  # Distancia en metros entre las intersecciones
-    intersection_positions = distances_intersections[::-1]
+    intersection_positions = [sum(distances)-sum(distances[:i+1]) for i in range(len(distances))]
     # velocity = 20 # km/h TODO: DO IT
     # offsets = [0, 2, 28, 38] # Dulanto 29-01-25
 
