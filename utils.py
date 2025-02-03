@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 from openpyxl import load_workbook
+from icecream import ic
 
 def apply_offset(program: list[list], offset: float) -> list[list]:
     cycle_time = sum([time_duration for _, time_duration in program])
@@ -32,13 +33,6 @@ def _get_color_values(lead_lag, green_val, blue_val):
         return [["green", green_val], ["blue", 0]]
 
 def draw_light(ax, position, cycle, time_max, program, color_green="green", color_left="blue", color_amber="yellow", color_red="red"):
-    colors = {
-        "green": color_green,
-        "left": color_left,
-        "amber": color_amber,
-        "red": color_red,
-    }
-
     for t in np.arange(0, time_max, cycle):
         # Dibujar semáforo inbound
         _draw_segments(
@@ -46,7 +40,6 @@ def draw_light(ax, position, cycle, time_max, program, color_green="green", colo
             [position, position + 10],
             t,
             program["inbound"],
-            colors
         )
         # Dibujar semáforo outbound
         _draw_segments(
@@ -54,10 +47,9 @@ def draw_light(ax, position, cycle, time_max, program, color_green="green", colo
             [position - 10, position],
             t,
             program["outbound"],
-            colors
         )
 
-def _draw_segments(ax, position_range, t_start, phases: list[list], colors) -> None:
+def _draw_segments(ax, position_range, t_start, phases: list[list]) -> None:
     t = t_start
     for colour, duration in phases:
         ax.fill_betweenx(
@@ -69,7 +61,7 @@ def _draw_segments(ax, position_range, t_start, phases: list[list], colors) -> N
         )
         t += duration
 
-def draw_band(ax, intersection_positions, programs, velocity, time_max, light_cycles, direction="inbound", color="green"):
+def draw_band(ax, intersection_positions: list, programs: dict, speeds: dict, offsets: list, time_max, light_cycles, direction="inbound", color="green"):
     """
     Dibuja las bandas de tiempo-espacio para un flujo específico (inbound u outbound).
     
@@ -82,14 +74,30 @@ def draw_band(ax, intersection_positions, programs, velocity, time_max, light_cy
         direction: Dirección del flujo ('inbound' o 'outbound').
         color: Color de la banda.
     """
+    offsets_out = offsets[1:] # No se considera el primero que es 0
+
+    offsets_in = offsets[:-1]
+    offsets_in = offsets_in[::-1]
+    aux_programs_in = programs.copy()
+    aux_programs_in.popitem()
+    programs_in = dict(reversed(aux_programs_in.items()))
+
+    programs_out = programs.copy()
+    first_key = next(iter(programs_out))
+    programs_out.pop(first_key)
+
     if direction == "inbound":
-        # Velocidad en m/s
-        slope = -1 / velocity  # Pendiente inversa para el eje tiempo-espacio
         positions = intersection_positions[::-1]
-        for i, (start_pos, end_pos) in enumerate(zip(positions[:-1], positions[1:])):
+        in_speeds = speeds["inbound"]
+        for i, (start_pos, end_pos) in enumerate(zip(positions[1:], positions[:-1])):
+            slope = -1/in_speeds[i]
             cycle = light_cycles[i + 1]  # Ciclo total de la intersección
-            green_duration = programs[i + 1][direction]["green"]  # Duración del verde
-            start_time = 0  # Inicia en t=0
+            list_program = programs_in[len(programs_in)-i][direction]
+            green_duration = 0
+            for colour, time in list_program:
+                if colour == "green":
+                    green_duration += time # Duración del verde
+            start_time = 0 + offsets_in[i]  # Inicia en t=0
 
             while start_time < time_max:
                 # Coordenadas del inicio y fin de la banda verde
@@ -107,7 +115,7 @@ def draw_band(ax, intersection_positions, programs, velocity, time_max, light_cy
                     [x1, x2, x2_end, x1_end],
                     [y1, y2, y2, y1],
                     color=color,
-                    alpha=0.5
+                    alpha=0.2
                 )
 
                 # Avanzar al siguiente ciclo
@@ -115,12 +123,19 @@ def draw_band(ax, intersection_positions, programs, velocity, time_max, light_cy
 
     elif direction == "outbound":
         # Velocidad en m/s
-        slope = 1 / velocity  # Pendiente inversa para el eje tiempo-espacio
+        # slope = 1 / velocity  # Pendiente para el eje tiempo-espacio
         positions = intersection_positions
-        for i, (start_pos, end_pos) in enumerate(zip(positions[:-1], positions[1:])):
-            cycle = light_cycles[i + 1]  # Ciclo total de la intersección
-            green_duration = programs[i + 1][direction]["green"]  # Duración del verde
-            start_time = 0  # Inicia en t=0
+        out_speeds = speeds["outbound"]
+        for i, (start_pos, end_pos) in enumerate(zip(positions[1:], positions[:-1])):
+            ic("Iteración:", i)
+            slope = 1 / out_speeds[i]
+            cycle = light_cycles[i + 2]  # Ciclo total de la intersección
+            list_program = programs_out[i+2][direction] #TODO
+            green_duration = 0
+            for colour, time in list_program:
+                if colour == "green":
+                    green_duration += time # Duración del verde
+            start_time = 0 + offsets_out[i] # Inicia en t=0
 
             while start_time < time_max:
                 # Coordenadas del inicio y fin de la banda verde
@@ -138,7 +153,7 @@ def draw_band(ax, intersection_positions, programs, velocity, time_max, light_cy
                     [x1, x2, x2_end, x1_end],
                     [y1, y2, y2, y1],
                     color=color,
-                    alpha=0.5
+                    alpha=0.2
                 )
 
                 # Avanzar al siguiente ciclo
@@ -303,6 +318,10 @@ def read_program(excel_path: str) -> tuple[dict, list, list]:
     programs = {}
     offsets = []
     distances = [0]
+    speeds = {
+        "inbound": [],
+        "outbound": [],
+    }
     while True:
         name = ws.cell(row=3+2*n, column=1).value
         if name == None:
@@ -335,16 +354,25 @@ def read_program(excel_path: str) -> tuple[dict, list, list]:
         if distance != None:
             distances.append(distance)
 
+        # Velocidades
+        in_speed = ws.cell(row=4+2*n, column=3).value
+        if in_speed != None:
+            in_speed_ms = in_speed / 3.6
+            speeds["inbound"].append(in_speed_ms)
+        out_speed = ws.cell(row=4+2*n, column=4).value
+        if out_speed != None:
+            out_speed_ms = out_speed / 3.6
+            speeds["outbound"].append(out_speed_ms)
+
         # Programación
         programs[id] = program
         n += 1
     
-    return programs, offsets, distances
+    return programs, offsets, distances, speeds
 
-def start_algorithm(df_in: pd.DataFrame | None, df_out: pd.DataFrame | None, original_programs: dict, offsets: list, distances: list) -> None:
+def start_algorithm(original_programs: dict, offsets: list, distances: list, speeds: dict, df_in = None, df_out = None) -> None:
     # Configuración de las intersecciones
     intersection_positions = [sum(distances)-sum(distances[:i+1]) for i in range(len(distances))]
-    # velocity = 20 # km/h TODO: DO IT
     # offsets = [0, 2, 28, 38] # Dulanto 29-01-25
 
     programs = deepcopy(original_programs)
@@ -354,20 +382,19 @@ def start_algorithm(df_in: pd.DataFrame | None, df_out: pd.DataFrame | None, ori
             new_program = apply_offset(program_list, offsets[i])
             programs[intersection][bound] = new_program
 
-    light_cycles = {number: sum([value for _, value in dict_bounds["inbound"]]) for number, dict_bounds in programs.items()}
-
+    light_cycles = {number: sum([value for color_key, value in dict_bounds["inbound"] if color_key != "yellow"]) for number, dict_bounds in programs.items()}
+    ic(programs)
     time_max = max(light_cycles.values())*3  # Duración máxima del gráfico (en segundos)
 
 
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.set_xlim(0, time_max)
-    # ax.set_ylim(0, 1500)
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Distance (m)")
     ax.set_title("Time-Space Diagram")
 
-    # draw_band(ax, intersection_positions, programs, 5.56, time_max, light_cycles, direction="inbound", color="green")
-    # draw_band(ax, intersection_positions, programs, 5.56, time_max, light_cycles, direction="outbound", color="blue")
+    draw_band(ax, intersection_positions, programs, speeds, offsets, time_max, light_cycles, direction="inbound", color="green")
+    draw_band(ax, intersection_positions, programs, speeds, offsets, time_max, light_cycles, direction="outbound", color="blue")
 
     # Graficar datos de GPS
     if df_in is not None:

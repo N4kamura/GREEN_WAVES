@@ -21,6 +21,10 @@ class MainWindow(QMainWindow):
         self.status = self.statusBar()
 
         self.config_path = None
+        self.inbound = False
+        self.outbound = False
+        self.in_path = None
+        self.out_path = None
 
     def open_gps_in_file(self):
         self.in_path, _ = QFileDialog.getOpenFileName(self, "Open GPS File", "", "Text Files (*.txt)")
@@ -95,32 +99,33 @@ class MainWindow(QMainWindow):
 
     def start(self):
         if not self.config_path:
+            self.inbound_start_time = self.ui.in_timeEdit.time().toString("HH:mm:ss")
+            self.outbound_start_time = self.ui.out_timeEdit.time().toString("HH:mm:ss")
             # Obtaining hours and minutes from QTimeEdit
             if self.ui.in_checkBox.isChecked():
-                self.inbound_start_time = self.ui.in_timeEdit.time().toString("HH:mm:ss")
                 self.inbound = True
-            else:
-                self.in_path = None
             
             if self.ui.out_checkBox.isChecked():
-                self.outbound_start_time = self.ui.out_timeEdit.time().toString("HH:mm:ss")
                 self.outbound = True
-            else:
-                self.out_path = None
             
-        programs, offsets, distances = read_program(self.excel_path)
+        programs, offsets, distances, speeds = read_program(self.excel_path)
 
         # Obtaining upper_limit in case of outbound
-        df_in, df_out = read_gps_data(
-            in_path=self.in_path,
-            out_path=self.out_path,
-            inbound=self.inbound,
-            outbound=self.outbound,
-            upper_hour=self.outbound_start_time,
-            lower_hour=self.inbound_start_time,
-            )
+
+        try:
+            df_in, df_out = read_gps_data(
+                in_path=self.in_path,
+                out_path=self.out_path,
+                inbound=self.inbound,
+                outbound=self.outbound,
+                upper_hour=self.outbound_start_time,
+                lower_hour=self.inbound_start_time,
+                )
+        except TypeError as e:
+            error = QErrorMessage(self)
+            return error.showMessage(f"Error: {e}")
         
-        start_algorithm(df_in, df_out, programs, offsets, distances)
+        start_algorithm(programs, offsets, distances, speeds, df_in, df_out)
 
         self.status.showMessage("Space-Time Diagram created")
 
