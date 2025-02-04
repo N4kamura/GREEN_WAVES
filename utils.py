@@ -127,7 +127,6 @@ def draw_band(ax, intersection_positions: list, programs: dict, speeds: dict, of
         positions = intersection_positions
         out_speeds = speeds["outbound"]
         for i, (start_pos, end_pos) in enumerate(zip(positions[1:], positions[:-1])):
-            ic("Iteración:", i)
             slope = 1 / out_speeds[i]
             cycle = light_cycles[i + 2]  # Ciclo total de la intersección
             list_program = programs_out[i+2][direction] #TODO
@@ -383,7 +382,6 @@ def start_algorithm(original_programs: dict, offsets: list, distances: list, spe
             programs[intersection][bound] = new_program
 
     light_cycles = {number: sum([value for color_key, value in dict_bounds["inbound"] if color_key != "yellow"]) for number, dict_bounds in programs.items()}
-    ic(programs)
     time_max = max(light_cycles.values())*3  # Duración máxima del gráfico (en segundos)
 
 
