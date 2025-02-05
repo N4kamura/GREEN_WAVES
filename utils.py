@@ -158,7 +158,7 @@ def draw_band(ax, intersection_positions: list, programs: dict, speeds: dict, of
                 # Avanzar al siguiente ciclo
                 start_time += cycle
 
-def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, upper_hour: str, lower_hour: str, displacement_in = 0, displacement_out = 0) -> list[pd.DataFrame, pd.DataFrame]:
+def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, lower_hour_out: str, lower_hour_in: str, distances: list[int], last_offset: int=0, displacement_in: int=0, displacement_out: int=0) -> list[pd.DataFrame, pd.DataFrame]:
     ###########
     # Inbound #
     ###########
@@ -209,20 +209,18 @@ def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, up
         df_in["Time"] = pd.to_datetime(df_in["Time"], format="%H:%M:%S")
 
         # Conviertiendo el upper_hour a datetime
-        lower_time = pd.to_datetime(lower_hour, format="%H:%M:%S")
+        lower_time = pd.to_datetime(lower_hour_in, format="%H:%M:%S")
 
         # Excluyendo los datos posteriores al upper_time
         df_in = df_in[df_in["Time"] >= lower_time]
-
-        # Obteniendo el lower_limit
-        lower_limit = df_in["Cumulative Length"].min()
 
         # Convertir valores numéricos
         df_in["Leg Length"] = pd.to_numeric(df_in["Leg Length"], errors="coerce")
         df_in["Leg Speed"] = pd.to_numeric(df_in["Leg Speed"], errors="coerce")
 
         # Normalizando a 0:
-        df_in["Distance"] = df_in["Cumulative Length"] - lower_limit
+        df_in["Distance"] = sum(distances) - (df_in["Cumulative Length"] - df_in["Cumulative Length"].iloc[0])
+        # df_in["Distance"] = df_in["Cumulative Length"] - lower_limit
 
         # Convertir la columna 'Time' a datetime
         df_in["Time_Seconds"] = (df_in["Time"] - df_in["Time"].iloc[0]).dt.total_seconds()
@@ -280,26 +278,23 @@ def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, up
         df_out["Time"] = pd.to_datetime(df_out["Time"], format="%H:%M:%S")
 
         # Conviertiendo el upper_hour a datetime
-        upper_time = pd.to_datetime(upper_hour, format="%H:%M:%S")
+        lower_time = pd.to_datetime(lower_hour_out, format="%H:%M:%S")
 
         # Excluyendo los datos posteriores al upper_time
-        df_out = df_out[df_out["Time"] <= upper_time]
-
-        # Obteniendo el upper_limit
-        upper_limit = df_out["Cumulative Length"].max()
+        df_out = df_out[df_out["Time"] >= lower_time]
 
         # Convertir valores numéricos
         df_out["Leg Length"] = pd.to_numeric(df_out["Leg Length"], errors="coerce")
         df_out["Leg Speed"] = pd.to_numeric(df_out["Leg Speed"], errors="coerce")
 
         # Si no es inbound, calcular "Decreasing Length"
-        df_out["Distance"] = upper_limit - df_out["Cumulative Length"]
+        df_out["Distance"] = df_out["Cumulative Length"] - df_out["Cumulative Length"].iloc[0]
 
         # Convertir la columna 'Time' a datetime
         df_out["Time_Seconds"] = (df_out["Time"] - df_out["Time"].iloc[0]).dt.total_seconds()
 
         # Aplicar demora para afinar los inicios de los tiempos
-        df_out["Time_Seconds"] += displacement_out #NOTE: Por si paso el medio de la intersección unos segundos después
+        df_out["Time_Seconds"] += displacement_out + last_offset #NOTE: Por si paso el medio de la intersección unos segundos después
 
     if not inbound:
         df_in = None

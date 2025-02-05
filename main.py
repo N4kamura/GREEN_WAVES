@@ -67,6 +67,8 @@ class MainWindow(QMainWindow):
                         "outbound": outbound,
                         "outbound_start_time": self.ui.out_timeEdit.time().toString("HH:mm:ss"),
                         "inbound_start_time": self.ui.in_timeEdit.time().toString("HH:mm:ss"),
+                        "displacement_in": self.ui.delay_in_spinBox.value(),
+                        "displacement_out": self.ui.delay_out_spinBox.value(),
                     }
                 }
             except Exception as e:
@@ -94,6 +96,8 @@ class MainWindow(QMainWindow):
             self.outbound = data["Configuration"]["outbound"]
             self.outbound_start_time = data["Configuration"]["outbound_start_time"]
             self.inbound_start_time = data["Configuration"]["inbound_start_time"]
+            self.displacement_in = data["Configuration"]["displacement_in"]
+            self.displacement_out = data["Configuration"]["displacement_out"]
 
             self.status.showMessage("Configuration loaded")
 
@@ -101,6 +105,8 @@ class MainWindow(QMainWindow):
         if not self.config_path:
             self.inbound_start_time = self.ui.in_timeEdit.time().toString("HH:mm:ss")
             self.outbound_start_time = self.ui.out_timeEdit.time().toString("HH:mm:ss")
+            self.displacement_in = self.ui.delay_in_spinBox.value()
+            self.displacement_out = self.ui.delay_out_spinBox.value()
             # Obtaining hours and minutes from QTimeEdit
             if self.ui.in_checkBox.isChecked():
                 self.inbound = True
@@ -118,8 +124,10 @@ class MainWindow(QMainWindow):
                 out_path=self.out_path,
                 inbound=self.inbound,
                 outbound=self.outbound,
-                upper_hour=self.outbound_start_time,
-                lower_hour=self.inbound_start_time,
+                lower_hour_out=self.outbound_start_time,
+                lower_hour_in=self.inbound_start_time,
+                distances=distances,
+                last_offset=offsets[-1],
                 )
         except TypeError as e:
             error = QErrorMessage(self)

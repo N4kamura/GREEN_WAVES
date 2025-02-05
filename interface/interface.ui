@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>468</width>
-    <height>260</height>
+    <width>472</width>
+    <height>309</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>468</width>
-    <height>194</height>
+    <width>472</width>
+    <height>309</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>468</width>
-    <height>300</height>
+    <width>472</width>
+    <height>309</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -41,12 +41,12 @@
      <rect>
       <x>380</x>
       <y>10</y>
-      <width>75</width>
+      <width>81</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>GPS In</string>
+     <string>GPS IDA</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="programLine">
@@ -64,12 +64,12 @@
      <rect>
       <x>380</x>
       <y>70</y>
-      <width>75</width>
+      <width>81</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Programs</string>
+     <string>Programación</string>
     </property>
    </widget>
    <widget class="QPushButton" name="startButton">
@@ -77,12 +77,12 @@
      <rect>
       <x>380</x>
       <y>100</y>
-      <width>75</width>
+      <width>81</width>
       <height>51</height>
      </rect>
     </property>
     <property name="text">
-     <string>Start</string>
+     <string>INICIAR</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -90,7 +90,7 @@
      <rect>
       <x>20</x>
       <y>100</y>
-      <width>191</width>
+      <width>171</width>
       <height>21</height>
      </rect>
     </property>
@@ -102,13 +102,13 @@
      </font>
     </property>
     <property name="text">
-     <string>Inbound Start Timestamp: </string>
+     <string>Hora de inicio (IDA):</string>
     </property>
    </widget>
    <widget class="QTimeEdit" name="in_timeEdit">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>200</x>
       <y>100</y>
       <width>81</width>
       <height>22</height>
@@ -129,7 +129,7 @@
      <rect>
       <x>20</x>
       <y>130</y>
-      <width>191</width>
+      <width>171</width>
       <height>21</height>
      </rect>
     </property>
@@ -141,13 +141,13 @@
      </font>
     </property>
     <property name="text">
-     <string>Outbound Start Timestamp: </string>
+     <string>Hora de inicio (VUELTA):</string>
     </property>
    </widget>
    <widget class="QTimeEdit" name="out_timeEdit">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>200</x>
       <y>130</y>
       <width>81</width>
       <height>22</height>
@@ -166,10 +166,10 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>220</y>
-      <width>121</width>
-      <height>16</height>
+      <x>270</x>
+      <y>170</y>
+      <width>81</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -189,9 +189,9 @@
    <widget class="QCheckBox" name="in_checkBox">
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>290</x>
       <y>100</y>
-      <width>61</width>
+      <width>71</width>
       <height>17</height>
      </rect>
     </property>
@@ -203,7 +203,7 @@
      </font>
     </property>
     <property name="text">
-     <string>In</string>
+     <string>IDA</string>
     </property>
     <property name="checked">
      <bool>true</bool>
@@ -212,9 +212,9 @@
    <widget class="QCheckBox" name="out_checkBox">
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>290</x>
       <y>130</y>
-      <width>61</width>
+      <width>81</width>
       <height>17</height>
      </rect>
     </property>
@@ -226,7 +226,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Out</string>
+     <string>VUELTA</string>
     </property>
     <property name="checked">
      <bool>true</bool>
@@ -237,12 +237,12 @@
      <rect>
       <x>380</x>
       <y>40</y>
-      <width>75</width>
+      <width>81</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>GPS Out</string>
+     <string>GPS VUELTA</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="outLine">
@@ -260,12 +260,12 @@
      <rect>
       <x>380</x>
       <y>160</y>
-      <width>75</width>
+      <width>81</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Save Config.</string>
+     <string>Guardar</string>
     </property>
    </widget>
    <widget class="QPushButton" name="readButton">
@@ -273,20 +273,20 @@
      <rect>
       <x>380</x>
       <y>190</y>
-      <width>75</width>
+      <width>81</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Read Config.</string>
+     <string>Cargar</string>
     </property>
    </widget>
    <widget class="QPlainTextEdit" name="plainTextEdit">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>160</y>
-      <width>361</width>
+      <y>220</y>
+      <width>451</width>
       <height>51</height>
      </rect>
     </property>
@@ -294,13 +294,91 @@
      <bool>true</bool>
     </property>
     <property name="plainText">
-     <string>Save Config: Saves the current configuration. Select a folder to store the configuration file.
-Read Config: Loads a configuration from a .json file.</string>
+     <string>Guardar: guarda la configuración y rutas actuales. Debes seleccionar una carpeta en donde guardar la configuración (en .json).
+Cargar: Carga la configuración desde un archivo .json.</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>160</y>
+      <width>171</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Demora fase 1 (IDA):</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>190</y>
+      <width>171</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Demora fase 1 (VUELTA):</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="delay_in_spinBox">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>160</y>
+      <width>42</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="delay_out_spinBox">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>190</y>
+      <width>42</width>
+      <height>22</height>
+     </rect>
     </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
+ <tabstops>
+  <tabstop>inButton</tabstop>
+  <tabstop>outButton</tabstop>
+  <tabstop>programsButton</tabstop>
+  <tabstop>startButton</tabstop>
+  <tabstop>in_timeEdit</tabstop>
+  <tabstop>out_timeEdit</tabstop>
+  <tabstop>in_checkBox</tabstop>
+  <tabstop>out_checkBox</tabstop>
+  <tabstop>delay_in_spinBox</tabstop>
+  <tabstop>delay_out_spinBox</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>readButton</tabstop>
+  <tabstop>inLine</tabstop>
+  <tabstop>outLine</tabstop>
+  <tabstop>programLine</tabstop>
+  <tabstop>plainTextEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
