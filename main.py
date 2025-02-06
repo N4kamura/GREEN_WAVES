@@ -25,6 +25,8 @@ class MainWindow(QMainWindow):
         self.outbound = False
         self.in_path = None
         self.out_path = None
+        self.displacement_in = 0
+        self.displacement_out = 0
 
     def open_gps_in_file(self):
         self.in_path, _ = QFileDialog.getOpenFileName(self, "Open GPS File", "", "Text Files (*.txt)")
@@ -128,6 +130,8 @@ class MainWindow(QMainWindow):
                 lower_hour_in=self.inbound_start_time,
                 distances=distances,
                 last_offset=offsets[-1],
+                displacement_in=self.displacement_in,
+                displacement_out=self.displacement_out,
                 )
         except TypeError as e:
             error = QErrorMessage(self)

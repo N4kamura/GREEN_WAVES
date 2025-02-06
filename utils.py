@@ -158,7 +158,7 @@ def draw_band(ax, intersection_positions: list, programs: dict, speeds: dict, of
                 # Avanzar al siguiente ciclo
                 start_time += cycle
 
-def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, lower_hour_out: str, lower_hour_in: str, distances: list[int], last_offset: int=0, displacement_in: int=0, displacement_out: int=0) -> list[pd.DataFrame, pd.DataFrame]:
+def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, lower_hour_out: str, lower_hour_in: str, distances: list[int], last_offset: int, displacement_in: int, displacement_out: int) -> list[pd.DataFrame, pd.DataFrame]:
     ###########
     # Inbound #
     ###########
@@ -391,10 +391,10 @@ def start_algorithm(original_programs: dict, offsets: list, distances: list, spe
 
     # Graficar datos de GPS
     if df_in is not None:
-        ax.plot(df_in["Time_Seconds"], df_in["Distance"], marker='o', linestyle='-', color='purple', label="Vehicle In Tracking")
+        ax.plot(df_in["Time_Seconds"], df_in["Distance"], marker='o', linestyle='-', color='purple', label="Recorrido Ida")
 
     if df_out is not None:
-        ax.plot(df_out["Time_Seconds"], df_out["Distance"], marker='o', linestyle='-', color='cyan', label="Vehicle Out Tracking")
+        ax.plot(df_out["Time_Seconds"], df_out["Distance"], marker='o', linestyle='-', color='cyan', label="Recorrido Vuelta")
 
     ax.legend()
 
