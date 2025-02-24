@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='Time-Space Diagram',
+    name='Creador de Diagramas v1.2.0',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['images\\icono.ico'],
 )

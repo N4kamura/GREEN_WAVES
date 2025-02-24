@@ -326,11 +326,11 @@ def read_program(excel_path: str) -> tuple[dict, list, list]:
         red =               ws.cell(row=3+2*n, column=12).value
 
         inbound_green =     ws.cell(row=3+2*n, column=6).value
-        inbound_blue =      ws.cell(row=3+2*n, column=7).value
+        inbound_blue =      ws.cell(row=3+2*n, column=10).value
         inbound_leadlag =   ws.cell(row=3+2*n, column=8).value
 
         outbound_green =    ws.cell(row=3+2*n, column=9).value
-        outbound_blue =     ws.cell(row=3+2*n, column=10).value
+        outbound_blue =     ws.cell(row=3+2*n, column=7).value
         outbound_leadlag =  ws.cell(row=3+2*n, column=11).value
 
         # Construcción del programa dinámico
@@ -361,10 +361,12 @@ def read_program(excel_path: str) -> tuple[dict, list, list]:
         # Programación
         programs[id] = program
         n += 1
+
+    wb.close()
     
     return programs, offsets, distances, speeds
 
-def start_algorithm(original_programs: dict, offsets: list, distances: list, speeds: dict, df_in = None, df_out = None) -> None:
+def start_algorithm(original_programs: dict, offsets: list, distances: list, speeds: dict, df_in = None, df_out = None, number_cycles: int = 3) -> None:
     # Configuración de las intersecciones
     intersection_positions = [sum(distances)-sum(distances[:i+1]) for i in range(len(distances))]
     # offsets = [0, 2, 28, 38] # Dulanto 29-01-25
@@ -377,7 +379,7 @@ def start_algorithm(original_programs: dict, offsets: list, distances: list, spe
             programs[intersection][bound] = new_program
 
     light_cycles = {number: sum([value for color_key, value in dict_bounds["inbound"] if color_key != "yellow"]) for number, dict_bounds in programs.items()}
-    time_max = max(light_cycles.values())*3  # Duración máxima del gráfico (en segundos)
+    time_max = max(light_cycles.values())*number_cycles  # NOTE: Duración máxima del gráfico (en segundos)
 
 
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -401,6 +403,15 @@ def start_algorithm(original_programs: dict, offsets: list, distances: list, spe
     # Dibujar semáforos
     for (i, position), program, cycle in zip(enumerate(intersection_positions), programs.values(), light_cycles.values()):
         draw_light(ax, position, cycle, time_max, program)
+
+    margin = 30
+    ax.set_ylim(min(intersection_positions)-margin, max(intersection_positions)+margin)
+    
+    ax2 = ax.twinx()
+    ax2.set_ylim(ax.get_ylim())
+    ax2.set_yticks(intersection_positions)
+    ax2.set_yticklabels(range(1, len(intersection_positions)+1))
+    ax2.set_ylabel("Intersections")
 
     # Ajustes finales
     ax.grid(True, linestyle="--", alpha=0.7)

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>422</width>
+    <height>473</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Multi TSD</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>381</width>
+      <height>421</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QCheckBox" name="ida_checkBox">
+         <property name="text">
+          <string>IDA</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="vuelta_checkBox">
+         <property name="text">
+          <string>VUELTA</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>CICLOS</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="cycles_spinBox">
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="save_general_Button">
+         <property name="text">
+          <string>Guardar</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QSpinBox" name="gps_ida_spinBox"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="gps_ida_lineEdit"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="gps_ida_load_Button">
+         <property name="text">
+          <string>GPS IDA</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="gps_ida_save_Button">
+         <property name="text">
+          <string>Guardar</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QSpinBox" name="gps_vuelta_spinBox"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="gps_vuelta_lineEdit"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="gps_vuelta_load_Button">
+         <property name="text">
+          <string>GPS VUELTA</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="gps_vuelta_save_Button">
+         <property name="text">
+          <string>Guardar</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLineEdit" name="program_lineEdit"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="program_load_Button">
+         <property name="text">
+          <string>PROG.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="program_save_Button">
+         <property name="text">
+          <string>Guardar</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QSpinBox" name="start_ida_spinBox">
+         <property name="maximumSize">
+          <size>
+           <width>35</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Hora de Inicio IDA</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTimeEdit" name="start_ida_timeEdit">
+         <property name="displayFormat">
+          <string>HH:mm:ss</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="start_ida_save_Button">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Guardar</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QSpinBox" name="start_vuelta_spinBox">
+         <property name="maximumSize">
+          <size>
+           <width>35</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Hora de Inicio VUELTA</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTimeEdit" name="start_vuelta_timeEdit">
+         <property name="displayFormat">
+          <string>HH:mm:ss</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="start_vuelta_save_Button">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Guardar</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <widget class="QSpinBox" name="delay_ida_order_spinBox">
+         <property name="maximumSize">
+          <size>
+           <width>35</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Demora Fase 1 IDA</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="delay_ida_spinBox">
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="delay_ida_save_Button">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Guardar</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QSpinBox" name="delay_vuelta_order_spinBox">
+         <property name="maximumSize">
+          <size>
+           <width>35</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Demora Fase 1 VUELTA</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="delay_vuelta_spinBox">
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="delay_vuelta_save_Button">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Guardar</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Credits: Nakamura</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

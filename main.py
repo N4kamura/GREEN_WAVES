@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
         self.out_path = None
         self.displacement_in = 0
         self.displacement_out = 0
+        self.number_cycles = 3
 
     def open_gps_in_file(self):
         self.in_path, _ = QFileDialog.getOpenFileName(self, "Open GPS File", "", "Text Files (*.txt)")
@@ -71,6 +72,7 @@ class MainWindow(QMainWindow):
                         "inbound_start_time": self.ui.in_timeEdit.time().toString("HH:mm:ss"),
                         "displacement_in": self.ui.delay_in_spinBox.value(),
                         "displacement_out": self.ui.delay_out_spinBox.value(),
+                        "number_cycles": self.ui.cycles_spinBox.value()
                     }
                 }
             except Exception as e:
@@ -100,6 +102,7 @@ class MainWindow(QMainWindow):
             self.inbound_start_time = data["Configuration"]["inbound_start_time"]
             self.displacement_in = data["Configuration"]["displacement_in"]
             self.displacement_out = data["Configuration"]["displacement_out"]
+            self.number_cycles = data["Configuration"]["number_cycles"]
 
             self.status.showMessage("Configuration loaded")
 
@@ -137,7 +140,7 @@ class MainWindow(QMainWindow):
             error = QErrorMessage(self)
             return error.showMessage(f"Error: {e}")
         
-        start_algorithm(programs, offsets, distances, speeds, df_in, df_out)
+        start_algorithm(programs, offsets, distances, speeds, df_in, df_out, self.number_cycles)
 
         self.status.showMessage("Space-Time Diagram created")
 
