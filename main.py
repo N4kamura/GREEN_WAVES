@@ -119,6 +119,8 @@ class MainWindow(QMainWindow):
             if self.ui.out_checkBox.isChecked():
                 self.outbound = True
             
+            self.number_cycles = self.ui.cycles_spinBox.value()
+            
         programs, offsets, distances, speeds = read_program(self.excel_path)
 
         # Obtaining upper_limit in case of outbound

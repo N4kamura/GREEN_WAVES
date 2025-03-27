@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>776</width>
+    <height>498</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>GPS &amp; TSD Viewer</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>641</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>10</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Program</string>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>60</y>
+      <width>641</width>
+      <height>401</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>641</width>
+      <height>401</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>641</width>
+      <height>401</height>
+     </size>
+    </property>
+    <property name="inputMethodHints">
+     <set>Qt::ImhNone</set>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Plain</enum>
+    </property>
+    <property name="lineWidth">
+     <number>1</number>
+    </property>
+    <property name="midLineWidth">
+     <number>1</number>
+    </property>
+    <property name="sizeAdjustPolicy">
+     <enum>QAbstractScrollArea::AdjustToContents</enum>
+    </property>
+    <property name="showGrid">
+     <bool>true</bool>
+    </property>
+    <property name="gridStyle">
+     <enum>Qt::DashLine</enum>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+    <property name="cornerButtonEnabled">
+     <bool>true</bool>
+    </property>
+    <attribute name="horizontalHeaderCascadingSectionResizes">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="horizontalHeaderMinimumSectionSize">
+     <number>40</number>
+    </attribute>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>123</number>
+    </attribute>
+    <attribute name="horizontalHeaderHighlightSections">
+     <bool>true</bool>
+    </attribute>
+    <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="horizontalHeaderStretchLastSection">
+     <bool>true</bool>
+    </attribute>
+    <attribute name="verticalHeaderVisible">
+     <bool>true</bool>
+    </attribute>
+    <attribute name="verticalHeaderCascadingSectionResizes">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="verticalHeaderDefaultSectionSize">
+     <number>31</number>
+    </attribute>
+    <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="verticalHeaderStretchLastSection">
+     <bool>true</bool>
+    </attribute>
+    <row>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>2</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>3</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>4</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>5</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>6</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>7</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>8</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>9</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>10</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>11</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>12</string>
+     </property>
+    </row>
+    <column>
+     <property name="text">
+      <string>GPS Path</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Name GPS</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>In / Out</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Start Time</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Delay</string>
+     </property>
+    </column>
+    <item row="0" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="font">
+      <font>
+       <kerning>true</kerning>
+      </font>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="0" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="0" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="1" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="1" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="1" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="2" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="2" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="2" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="3" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="3" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="3" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="4" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="4" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="4" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="5" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="5" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="5" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="6" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="6" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="6" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="7" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="7" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="7" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="8" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="8" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="8" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="9" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="9" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="9" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="10" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="10" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="10" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+    <item row="11" column="2">
+     <property name="text">
+      <string>True / False</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignVCenter</set>
+     </property>
+     <property name="checkState">
+      <enum>PartiallyChecked</enum>
+     </property>
+    </item>
+    <item row="11" column="3">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+    </item>
+    <item row="11" column="4">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>320</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save Config.</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_3">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>360</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load Config.</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_4">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>60</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Add Path</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_5">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>200</y>
+      <width>81</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>START</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>150</y>
+      <width>42</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>3</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>120</y>
+      <width>81</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Cycles</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
