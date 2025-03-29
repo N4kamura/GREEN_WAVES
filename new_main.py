@@ -115,8 +115,26 @@ class MainWindow(QMainWindow):
 
         df = pd.DataFrame(table_data, columns=headers)
 
-        print(df)
-        print(df.dtypes)
+        # Read program
+        try:
+            programs, offsets, distances, speeds = read_program(self.excel_path)
+        except Exception as e:
+            error_message = QErrorMessage(self)
+            error_message.showMessage(str(e))
+            return
+        
+        # Read GPS data
+        df = df[(df['GPS Path'].notna()) & (df['GPS Path'] != "")]
+        
+        try:
+            df = read_gps_data(df, programs, offsets, distances, speeds)
+        except Exception as e:
+            error_message = QErrorMessage(self)
+            error_message.showMessage(str(e))
+            return
+
+
+
 
         return df
 

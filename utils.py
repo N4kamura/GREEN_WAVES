@@ -158,6 +158,65 @@ def draw_band(ax, intersection_positions: list, programs: dict, speeds: dict, of
                 # Avanzar al siguiente ciclo
                 start_time += cycle
 
+def gps_tracking(gps_path: str, inbound: bool, distances: list[int], threshold_hour: int, displacement: int, last_offset: int=0) -> list[pd.DataFrame, pd.DataFrame]:
+
+    with open(gps_path, "r") as file:
+        lines = file.readlines()
+
+    data = []
+    start_parsing = False
+
+    for line in lines:
+        line = line.strip()
+
+        if line.startswith("Header"):
+            start_parsing = True
+            continue
+
+        if start_parsing and line.startswith("Trackpoint"):
+            values = line.split("\t")
+
+            while len(values )< 10:
+                values.append("")
+
+            # Extraer los valores con la estructura esperada
+            hour_string = datetime.strptime(values[2].strip(), "%d/%m/%Y %I:%M:%S %p")
+            time = hour_string.strftime("%H:%M:%S")
+            leg_length = float(values[6][:-2]) if values[6] else 0.0
+            leg_speed = float(values[8][:-4]) if values[8] else 0.0
+
+            # Agregar a la lista de datos
+            data.append([time, leg_length, leg_speed])
+
+    # Crear el DataFrame
+    columns = ["Time", "Leg Length", "Leg Speed"]
+    df_gps = pd.DataFrame(data, columns=columns)
+
+    # Acumulando distancias
+    df_gps["Cumulative Length"] = df_gps["Leg Length"].cumsum()
+
+    # Calculando upper_limit
+    df_gps["Time"] = pd.to_datetime(df_gps["Time"], format="%H:%M:%S")
+
+    # Conviertiendo el upper_hour a datetime
+    threshold_hour = pd.to_datetime(threshold_hour, format="%H:%M:%S")
+
+    df_gps = df_gps[df_gps["Time"] >= threshold_hour]
+
+    df_gps["Leg Length"] = pd.to_numeric(df_gps["Leg Length"], errors="coerce")
+    df_gps["Leg Speed"] = pd.to_numeric(df_gps["Leg Speed"], errors="coerce")
+
+    if inbound:
+        df_gps["Distance"] = sum(distances) - (df_gps["Cumulative Length"] - df_gps["Cumulative Length"].iloc[0])
+    else:
+        df_gps["Distance"] = df_gps["Cumulative Length"] - df_gps["Cumulative Length"].iloc[0]
+
+    df_gps["Time_Seconds"] = (df_gps["Time"] - df_gps["Time"].iloc[0]).dt.total_seconds()
+
+    df_gps["Time_Seconds"] += displacement + last_offset
+
+    return df_gps
+
 def read_gps_data(in_path: str, out_path: str, inbound: bool, outbound: bool, lower_hour_out: str, lower_hour_in: str, distances: list[int], last_offset: int, displacement_in: int, displacement_out: int) -> list[pd.DataFrame, pd.DataFrame]:
     ###########
     # Inbound #
