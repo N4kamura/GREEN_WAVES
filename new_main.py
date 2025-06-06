@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QErrorMessage, QTimeEdit, QMessageBox, QTableWidgetItem
 from PyQt5.QtCore import Qt
 from interface.new_interface import Ui_MainWindow
-from utils import start_algorithm, read_gps_data, read_program
+from utils import read_program, gps_tracking, draw_tracking
 import os
 import json
 import csv
@@ -125,18 +125,38 @@ class MainWindow(QMainWindow):
         
         # Read GPS data
         df = df[(df['GPS Path'].notna()) & (df['GPS Path'] != "")]
+
+        dfs_inbound, dfs_outbound = [], []
+        for _, row in df.iterrows():
+            try:
+                df_gps = gps_tracking(
+                    gps_path=row['GPS Path'],
+                    inbound=row['In / Out'] == "Checked",
+                    distances=distances,
+                    threshold_hour=row['Start Time'],
+                    displacement=int(row['Delay']),
+                    last_offset=0 if row["In / Out"] == "Checked" else offsets[-1],
+                )
+            except Exception as e:
+                error_message = QErrorMessage(self)
+                error_message.showMessage(str(e))
+                return
+            
+            if row["In / Out"] == "Checked":
+                dfs_inbound.append(df_gps)
+            else:
+                dfs_outbound.append(df_gps)
         
-        try:
-            df = read_gps_data(df, programs, offsets, distances, speeds)
-        except Exception as e:
-            error_message = QErrorMessage(self)
-            error_message.showMessage(str(e))
-            return
-
-
-
-
-        return df
+        # Dibujo de datos
+        draw_tracking(
+            original_programs=programs,
+            offsets=offsets,
+            distances=distances,
+            speeds=speeds,
+            dfs_inbound=dfs_inbound,
+            dfs_outbound=dfs_outbound,
+            number_cycles=self.ui.spinBox.value(),
+        )
 
     def add_path(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo GPS", "", "Archivos de texto (*.txt)")

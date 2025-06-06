@@ -476,3 +476,66 @@ def start_algorithm(original_programs: dict, offsets: list, distances: list, spe
     ax.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
     plt.show()
+
+def draw_tracking(
+    original_programs: dict,
+    offsets: list,
+    distances: list,
+    speeds: dict,
+    dfs_inbound: list = [],
+    dfs_outbound: list = [],
+    number_cycles: int = 7
+) -> None:
+    intersection_positions = [sum(distances)-sum(distances[:i+1]) for i in range(len(distances))]
+    programs = deepcopy(original_programs)
+
+    for i, (intersection, dict_bounds) in enumerate(original_programs.items()):
+        for bound, program_list in dict_bounds.items():
+            new_program = apply_offset(program_list, offsets[i])
+            programs[intersection][bound] = new_program
+
+    light_cycles = {number: sum([value for color_key, value in dict_bounds["inbound"] if color_key != "yellow"]) for number, dict_bounds in programs.items()}
+    time_max = max(light_cycles.values())*number_cycles
+
+    # Dibujo de bandas de ola verde
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.set_xlim(0, time_max)
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Distance (m)")
+    ax.set_title("Time-Space Diagram")
+
+    # draw_band(ax, intersection_positions, programs, speeds, offsets, time_max, light_cycles, direction="inbound", color="green")
+    # draw_band(ax, intersection_positions, programs, speeds, offsets, time_max, light_cycles, direction="outbound", color="blue")
+
+    ax.legend()
+
+    # Dibujo de tracking de GPS
+
+    if dfs_inbound is not None: #TODO: Agregar el nombre del archivo :D
+        for df_in in dfs_inbound:
+            ax.plot(df_in["Time_Seconds"], df_in["Distance"], marker='o', linestyle='-', color='purple', label='Recorrido de Ida')
+
+    if dfs_outbound is not None:
+        for df_out in dfs_outbound:
+            ax.plot(df_out["Time_Seconds"], df_out["Distance"], marker='o', linestyle='-', color='cyan', label='Recorrido de Vuelta')
+
+    ax.legend()
+
+    # Dibujar semáforos
+    for (i, position), program, cycle in zip(enumerate(intersection_positions), programs.values(), light_cycles.values()):
+        draw_light(ax, position, cycle, time_max, program)
+
+    margin = 30
+    ax.set_ylim(min(intersection_positions)-margin, max(intersection_positions)+margin)
+
+    ax2 = ax.twinx()
+    ax2.set_ylim(ax.get_ylim())
+    ax2.set_yticks(intersection_positions)
+    ax2.set_yticklabels(range(1, len(intersection_positions)+1))
+    ax2.set_ylabel("Intersecciones")
+
+    # Ajustes finales
+    ax.grid(True, linestyle="--", alpha=0.7)
+    plt.tight_layout()
+    plt.show()
