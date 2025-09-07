@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='Creador de Diagramas v1.2.0',
+    name='Creador de Diagramas v2.0.0',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

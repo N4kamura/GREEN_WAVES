@@ -1,150 +1,178 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QErrorMessage, QTimeEdit, QMessageBox
-from interface import Ui_mainWindow
-from utils import start_algorithm, read_gps_data, read_program
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QErrorMessage, QTimeEdit, QMessageBox, QTableWidgetItem
+from PyQt5.QtCore import Qt
+from interface.interface import Ui_MainWindow
+from utils.utils import read_program, gps_tracking, draw_tracking
 import os
 import json
+import csv
+import pandas as pd
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.ui = Ui_mainWindow()
+        self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.ui.inButton.clicked.connect(self.open_gps_in_file)
-        self.ui.outButton.clicked.connect(self.open_gps_out_file)
-        self.ui.programsButton.clicked.connect(self.open_programs_file)
-        self.ui.saveButton.clicked.connect(self.save_config)
-        self.ui.readButton.clicked.connect(self.load_config)
-
-        self.ui.startButton.clicked.connect(self.start)
+        self.ui.pushButton.clicked.connect(self.open_program)
+        self.ui.pushButton_2.clicked.connect(self.save_config)
+        self.ui.pushButton_3.clicked.connect(self.load_config)
+        self.ui.pushButton_4.clicked.connect(self.add_path)
+        self.ui.pushButton_5.clicked.connect(self.start)
 
         self.status = self.statusBar()
 
-        self.config_path = None
-        self.inbound = False
-        self.outbound = False
-        self.in_path = None
-        self.out_path = None
-        self.displacement_in = 0
-        self.displacement_out = 0
-        self.number_cycles = 3
-
-    def open_gps_in_file(self):
-        self.in_path, _ = QFileDialog.getOpenFileName(self, "Open GPS File", "", "Text Files (*.txt)")
-        if self.in_path:
-            self.ui.inLine.setText(self.in_path)
-            self.status.showMessage("Loaded inbound file")
-
-    def open_gps_out_file(self):
-        self.out_path, _ = QFileDialog.getOpenFileName(self, "Open GPS File", "", "Text Files (*.txt)")
-        if self.out_path:
-            self.ui.outLine.setText(self.out_path)
-            self.status.showMessage("Loaded outbound file")
-
-    def open_programs_file(self):
+    def open_program(self):
         self.excel_path, _ = QFileDialog.getOpenFileName(self, "Open Programs File", "", "Excel Files (*.xlsx)")
         if self.excel_path:
-            self.ui.programLine.setText(self.excel_path)
+            self.ui.lineEdit.setText(self.excel_path)
             self.status.showMessage("Load programs file")
 
     def save_config(self):
-        # Open a folder
-        folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
-        if folder_path:
-            inbound, outbound = False, False
-            if self.ui.in_checkBox.isChecked():
-                inbound = True
-            else:
-                self.in_path = None
-            if self.ui.out_checkBox.isChecked():
-                outbound = True
-            else:
-                self.in_path = None
-            try:
-                data_dict = {
-                    "Configuration": {
-                        "in_path": self.in_path,
-                        "out_path": self.out_path,
-                        "excel_path": self.excel_path,
-                        "inbound": inbound,
-                        "outbound": outbound,
-                        "outbound_start_time": self.ui.out_timeEdit.time().toString("HH:mm:ss"),
-                        "inbound_start_time": self.ui.in_timeEdit.time().toString("HH:mm:ss"),
-                        "displacement_in": self.ui.delay_in_spinBox.value(),
-                        "displacement_out": self.ui.delay_out_spinBox.value(),
-                        "number_cycles": self.ui.cycles_spinBox.value()
-                    }
-                }
-            except Exception as e:
-                error = QErrorMessage(self)
-                return error.showMessage(f"Error: {e}")
+        self.folder_config = QFileDialog.getExistingDirectory(self, "Seleccionar carpeta para guardar configuración")
+        if self.folder_config:
+            config_txt_path = os.path.join(self.folder_config, "config.txt")
 
-            with open(f"{os.path.join(folder_path, 'config.json')}", "w") as f:
-                json.dump(data_dict, f, indent=4)
+            with open(config_txt_path, "w", newline='', encoding='utf-8') as f:
+                writer = csv.writer(f, delimiter=',')
 
-            self.status.showMessage("Save configuration")
-        else:
-            error = QErrorMessage(self)
-            return error.showMessage("Please select a folder to save the configuration.")
+                headers = ["GPS Path", "Name GPS", "In / Out", "Start Time", "Delay", "Cycles"]
+                writer.writerow(headers)
 
-    def load_config(self):
-        self.config_path, _ = QFileDialog.getOpenFileName(self, "Open Configuration File", "", "JSON Files (*.json)")
-        if self.config_path:
-            with open(self.config_path, "r") as f:
-                data = json.load(f)
+                row_count = self.ui.tableWidget.rowCount()
+                column_count = self.ui.tableWidget.columnCount()
 
-            self.in_path = data["Configuration"]["in_path"]
-            self.out_path = data["Configuration"]["out_path"]
-            self.excel_path = data["Configuration"]["excel_path"]
-            self.inbound = data["Configuration"]["inbound"]
-            self.outbound = data["Configuration"]["outbound"]
-            self.outbound_start_time = data["Configuration"]["outbound_start_time"]
-            self.inbound_start_time = data["Configuration"]["inbound_start_time"]
-            self.displacement_in = data["Configuration"]["displacement_in"]
-            self.displacement_out = data["Configuration"]["displacement_out"]
-            self.number_cycles = data["Configuration"]["number_cycles"]
+                for row in range(row_count):
+                    row_data = []
+                    for column in range(column_count):
+                        if column == 2: # Order for In / Out
+                            item = self.ui.tableWidget.item(row, column)
+                            
+                            if item is not None:
+                                state = item.checkState()
 
-            self.status.showMessage("Configuration loaded")
+                                if state == Qt.Checked:
+                                    row_data.append("Checked")
+                                elif state == Qt.Unchecked:
+                                    row_data.append("Unchecked")
+                                elif state == Qt.PartiallyChecked:
+                                    row_data.append("PartiallyChecked")
+                            else:
+                                row_data.append("")
+                        else:
+                            item = self.ui.tableWidget.item(row,column)
+
+                            if item is not None:
+                                row_data.append(item.text())
+                            else:
+                                row_data.append("")
+
+                    row_data.append(f"{self.ui.spinBox.value()}")
+
+                    writer.writerow(row_data)
+
+            self.status.showMessage(f"Archivo guardado en: {self.folder_config}")
 
     def start(self):
-        if not self.config_path:
-            self.inbound_start_time = self.ui.in_timeEdit.time().toString("HH:mm:ss")
-            self.outbound_start_time = self.ui.out_timeEdit.time().toString("HH:mm:ss")
-            self.displacement_in = self.ui.delay_in_spinBox.value()
-            self.displacement_out = self.ui.delay_out_spinBox.value()
-            # Obtaining hours and minutes from QTimeEdit
-            if self.ui.in_checkBox.isChecked():
-                self.inbound = True
-            
-            if self.ui.out_checkBox.isChecked():
-                self.outbound = True
-            
-            self.number_cycles = self.ui.cycles_spinBox.value()
-            
-        programs, offsets, distances, speeds = read_program(self.excel_path)
 
-        # Obtaining upper_limit in case of outbound
+        ###########################
+        # Converting to dataframe #
+        ###########################
 
+        row_count = self.ui.tableWidget.rowCount()
+        column_count = self.ui.tableWidget.columnCount()
+
+        headers = []
+        for column in range(column_count):
+            header_item = self.ui.tableWidget.horizontalHeaderItem(column)
+            if header_item is not None:
+                headers.append(header_item.text())
+            else:
+                headers.append(f"Column {column}")
+
+        table_data = []
+        for row in range(row_count):
+            row_data = []
+            for column in range(column_count):
+                if column == 2:
+                    item = self.ui.tableWidget.item(row, column)
+                    if item is not None:
+                        state = item.checkState()
+                        if state == Qt.Checked:
+                            row_data.append("Checked")
+                        elif state == Qt.Unchecked:
+                            row_data.append("Unchecked")
+                        elif state == Qt.PartiallyChecked:
+                            row_data.append("PartiallyChecked")
+                    else:
+                        row_data.append("")
+                else:
+                    item = self.ui.tableWidget.item(row, column)
+                    if item is not None:
+                        row_data.append(item.text())
+                    else:
+                        row_data.append("")
+            table_data.append(row_data)
+
+        df = pd.DataFrame(table_data, columns=headers)
+
+        # Read program
         try:
-            df_in, df_out = read_gps_data(
-                in_path=self.in_path,
-                out_path=self.out_path,
-                inbound=self.inbound,
-                outbound=self.outbound,
-                lower_hour_out=self.outbound_start_time,
-                lower_hour_in=self.inbound_start_time,
-                distances=distances,
-                last_offset=offsets[-1],
-                displacement_in=self.displacement_in,
-                displacement_out=self.displacement_out,
-                )
-        except TypeError as e:
-            error = QErrorMessage(self)
-            return error.showMessage(f"Error: {e}")
+            programs, offsets, distances, speeds = read_program(self.excel_path)
+        except Exception as e:
+            error_message = QErrorMessage(self)
+            error_message.showMessage(str(e))
+            return
         
-        start_algorithm(programs, offsets, distances, speeds, df_in, df_out, self.number_cycles)
+        # Read GPS data
+        df = df[(df['GPS Path'].notna()) & (df['GPS Path'] != "")]
 
-        self.status.showMessage("Space-Time Diagram created")
+        dfs_inbound, dfs_outbound = [], []
+        for _, row in df.iterrows():
+            try:
+                df_gps = gps_tracking(
+                    gps_path=row['GPS Path'],
+                    inbound=row['In / Out'] == "Checked",
+                    distances=distances,
+                    threshold_hour=row['Start Time'],
+                    displacement=int(row['Delay']),
+                    last_offset=0 if row["In / Out"] == "Checked" else offsets[-1],
+                )
+            except Exception as e:
+                error_message = QErrorMessage(self)
+                error_message.showMessage(str(e))
+                return
+            
+            if row["In / Out"] == "Checked":
+                dfs_inbound.append(df_gps)
+            else:
+                dfs_outbound.append(df_gps)
+        
+        # Dibujo de datos
+        draw_tracking(
+            original_programs=programs,
+            offsets=offsets,
+            distances=distances,
+            speeds=speeds,
+            dfs_inbound=dfs_inbound,
+            dfs_outbound=dfs_outbound,
+            number_cycles=self.ui.spinBox.value(),
+        )
+
+    def add_path(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo GPS", "", "Archivos de texto (*.txt)")
+        file_name = os.path.basename(file_path)
+        if file_path:
+            row_count = self.ui.tableWidget.rowCount()
+            for row in range(row_count):
+                if not self.ui.tableWidget.item(row, 0): # check if cell is empty
+                    self.ui.tableWidget.setItem(row, 0, QTableWidgetItem(file_path))
+                    self.ui.tableWidget.setItem(row, 1, QTableWidgetItem(file_name))
+                    return
+                
+            self.status.showMessage("No se pueden agregar más archivos")
+
+    def load_config(self):
+        pass
 
 def main():
     app = QApplication([])
